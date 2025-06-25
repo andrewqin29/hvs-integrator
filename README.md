@@ -16,8 +16,8 @@ To set up the local environment and run the pipelines, follow these steps. This 
 
 **1. Clone the Repository:**
 ```bash
-git clone <your-repository-url>
-cd hvs-kinematics
+git clone git@github.com:andrewqin29/hvs-kinematics-pipeline.git
+cd hvs-kinematics-pipeline
 ```
 
 **2. Create and Activate a Virtual Environment:**
@@ -28,8 +28,6 @@ python3 -m venv hvs_env
 # Activate the environment
 # On macOS/Linux:
 source hvs_env/bin/activate
-# On Windows (Command Prompt):
-# hvs_env\Scripts\activate.bat
 ```
 
 **3. Install Dependencies:**

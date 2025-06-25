@@ -16,8 +16,8 @@ To set up the local environment and run the pipelines, follow these steps. This 
 
 **1. Clone the Repository:**
 ```bash
-git clone git@github.com:andrewqin29/hvs-kinematics-pipeline.git
-cd hvs-kinematics-pipeline
+git clone git@github.com:andrewqin29/hvs-integrator.git
+cd hvs-integrator
 ```
 
 **2. Create and Activate a Virtual Environment:**
@@ -72,9 +72,9 @@ The repository is organized to separate data, source code, scripts, and notebook
 ```
 hvs-kinematics/
 |
-├── .gitignore          # Specifies files and folders for Git to ignore (e.g., venv)
-├── README.md           # This file
-├── requirements.txt    # List of Python dependencies for pip
+├── .gitignore         
+├── README.md          
+├── requirements.txt    # Dependencies
 |
 ├── data/
 |   ├── raw/            # Contains the original, immutable source data

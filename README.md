@@ -5,7 +5,7 @@ This repository contains the data processing pipelines, analysis scripts, and vi
 The project uses observational data from the Gaia DR3 dataset, processes it into a 6D Galactocentric Cartesian frame with propagated errors via Monte Carlo methods, and provides tools for kinematic analysis and past orbit integration.
 
 ### Key Scientific References
-- **Primary Sample & Motivation:** Han et al. (2025), *Hypervelocity Stars Trace a Supermassive Black Hole in the Large Magellanic Cloud* ([arXiv:2502.00102](https://arxiv.org/abs/2502.00102))
+- **Primary Reference:** Han et al. (2025), *Hypervelocity Stars Trace a Supermassive Black Hole in the Large Magellanic Cloud* ([arXiv:2502.00102](https://arxiv.org/abs/2502.00102))
 - **LMC Proper Motion Data:** Kallivayalil et al. (2013), *Third-epoch Magellanic Cloud Proper Motions...* ([arXiv:1301.0832](https://arxiv.org/abs/1301.0832))
 
 ---
@@ -16,8 +16,8 @@ To set up the local environment and run the pipelines, follow these steps. This 
 
 **1. Clone the Repository:**
 ```bash
-git clone <your-repository-url>
-cd hvs-kinematics
+git clone git@github.com:andrewqin29/hvs-kinematics-pipeline.git
+cd hvs-kinematics-pipeline
 ```
 
 **2. Create and Activate a Virtual Environment:**
@@ -28,8 +28,6 @@ python3 -m venv hvs_env
 # Activate the environment
 # On macOS/Linux:
 source hvs_env/bin/activate
-# On Windows (Command Prompt):
-# hvs_env\Scripts\activate.bat
 ```
 
 **3. Install Dependencies:**
@@ -50,20 +48,20 @@ Run the following scripts from the command line in order. They will read the raw
 
 ```bash
 # Script 1: Cleans raw data and queries Gaia for full observational data
-python scripts/1_get_gaia_data.py
+python scripts/get_gaia_data.py
 
 # Script 2: Converts observational data to Cartesian coordinates with errors
-python scripts/2_make_cartesian_data.py
+python scripts/make_cartesian_data.py
 ```
 Upon completion, the processed data files will be saved in the `data/processed/` directory.
 
 **Step 2: Interactive Analysis and Visualization**
 
-Once the data is generated, you can explore it using the Jupyter Notebooks in the `notebooks/` directory. Open this project in an environment like VS Code with the Jupyter extension or run `jupyter notebook` from your activated terminal.
+Once the data is generated, you can explore it using the Jupyter Notebooks in the `notebooks/` directory.
 
-* **`notebooks/1_Data_Generation.ipynb`**: Contains the original exploratory code and development scratchpad for the data processing pipelines.
-* **`notebooks/2_Visualization.ipynb`**: Loads the final Cartesian data to produce all diagnostic plots (Aitoff projections, 3D quiver plots, histograms, etc.).
-* **`notebooks/3_Orbit_Integration.ipynb`**: The development notebook for building and validating the custom Leapfrog orbit integrator.
+* **`notebooks/datagen.ipynb`**: Contains the original exploratory code and development scratchpad for the data processing pipelines.
+* **`notebooks/datavis.ipynb`**: Loads the final Cartesian data to produce all diagnostic plots (Aitoff projections, 3D quiver plots, histograms, etc.).
+* **`notebooks/orbit_integration.ipynb`**: The development notebook for building and validating the custom Leapfrog orbit integrator.
 
 ---
 

@@ -59,8 +59,8 @@ Upon completion, the processed data files will be saved in the `data/processed/`
 
 Once the data is generated, you can explore it using the Jupyter Notebooks in the `notebooks/` directory.
 
-* **`notebooks/datagen.ipynb`**: Contains the original exploratory code and development scratchpad for the data processing pipelines.
-* **`notebooks/datavis.ipynb`**: Loads the final Cartesian data to produce all diagnostic plots (Aitoff projections, 3D quiver plots, histograms, etc.).
+* **`notebooks/data_generation.ipynb`**: Contains the original exploratory code and development scratchpad for the data processing pipelines.
+* **`notebooks/data_visualization.ipynb`**: Loads the final Cartesian data to produce all diagnostic plots (Aitoff projections, 3D quiver plots, histograms, etc.).
 * **`notebooks/orbit_integration.ipynb`**: The development notebook for building and validating the custom Leapfrog orbit integrator.
 
 ---

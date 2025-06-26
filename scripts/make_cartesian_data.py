@@ -6,8 +6,11 @@ import os
 from tqdm import tqdm
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(script_dir)
+input_path = os.path.join(project_root, 'data', 'processed', 'gaia_data.csv')
+output_path = os.path.join(project_root, 'data', 'processed', 'monte_carlo_cartesian.csv')
 
-def convert_to_cartesian_w_errors(curr_data, num_samples=1000):
+def convert_to_cartesian_w_errors(curr_data, num_samples=10000):
     """
     Monte Carlo error propogation for coordinate transformations into cartesian frame via Gaussian random sampling.
     """
@@ -47,4 +50,28 @@ def convert_to_cartesian_w_errors(curr_data, num_samples=1000):
 
     return cartesian_df
 
-df = pd.read_csv
+df = pd.read_csv(input_path)
+
+# process data
+print('Processing all stars...')
+global_results = [] # list of dictionaries
+for index, star in tqdm(df.iterrows(), total=df.shape[0]):
+    curr = convert_to_cartesian_w_errors(star)
+    curr['source_id'] = star['source_id']
+    curr['HVS'] = star['HVS']
+    global_results.append(curr)
+print('Processing finished.')
+
+# create final dataframe
+cartesian_df = pd.DataFrame(global_results)
+col_order = [
+    'HVS', 'source_id',
+    'x', 'x_err', 'y', 'y_err', 'z', 'z_err',
+    'u', 'u_err', 'v', 'v_err', 'w', 'w_err'
+]
+cartesian_df = cartesian_df[col_order]
+cartesian_df['HVS'] = cartesian_df['HVS'].astype(int)
+cartesian_df['source_id'] = cartesian_df['source_id'].astype(int)
+
+cartesian_df.to_csv(output_path, index=False, float_format='%.6f')
+print(f"Dataframe saved to '{output_path}")

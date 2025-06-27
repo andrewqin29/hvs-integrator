@@ -27,3 +27,6 @@ MANIFEST
 
 # Environments
 hvs_env/
+
+# Data folders
+data/processed/corner_plots

@@ -1,6 +1,6 @@
 # Kinematic Analysis and Orbit Integration of Hypervelocity Stars
 
-This repository contains the data processing pipelines, analysis scripts, and visualization notebooks for a research project investigating the origins of hypervelocity stars (HVS). The primary goal is to analyze the kinematics of the 20 HVS from the HVS Survey to test the hypothesis that a significant fraction originate from the Large Magellanic Cloud (LMC) rather than the Galactic Center (Sgr A*).
+This repository contains the data processing pipelines, analysis scripts, and visualization notebooks for a research project investigating the origins of hypervelocity stars (HVS). The primary goal is to analyze the kinematics of the 21 HVS from the HVS Survey to test the hypothesis that a significant fraction originate from the Large Magellanic Cloud (LMC) rather than the Galactic Center (Sgr A*).
 
 The project uses observational data from the Gaia DR3 dataset, processes it into a 6D Galactocentric Cartesian frame with propagated errors via Monte Carlo methods, and provides tools for kinematic analysis and past orbit integration.
 
@@ -70,7 +70,7 @@ Once the data is generated, you can explore it using the Jupyter Notebooks in th
 The repository is organized to separate data, source code, scripts, and notebooks.
 
 ```
-hvs-kinematics/
+hvs-integrator/
 |
 ├── .gitignore         
 ├── README.md          

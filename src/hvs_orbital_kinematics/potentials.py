@@ -24,3 +24,8 @@ def hernquist_acceleration(pos, params):
     denominator = r * (r + params['c'])**2
 
     return -mass_term / denominator * pos #directed towards galactic center
+
+def miyamoto_nagai_acceleration(pos, params):
+    pass
+def nfw_acceleration(pos, params):
+    pass

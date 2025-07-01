@@ -11,7 +11,8 @@ G_KPC_MYR = const.G.to(u.kpc**3 / (u.Msun * u.Myr**2)).value
 
 def hernquist_acceleration(pos, params):
     """
-    Calculates acceleration due to Hernquist Buldge potential
+    Calculates acceleration due to Hernquist Buldge potential. Used as the acceleration function for both
+    the Hernquist bulge and spherical nucleus which can be modeled as a Hernquist potential.
 
     Parameters:
         - pos: The 3d position vector of the HVS
@@ -27,5 +28,29 @@ def hernquist_acceleration(pos, params):
 
 def miyamoto_nagai_acceleration(pos, params):
     pass
+
 def nfw_acceleration(pos, params):
     pass
+
+class MWPotential:
+    def __init__(self):
+        self.components = {
+            # initialize parameters for the components
+            'Nucleus': {
+                'function': hernquist_acceleration,
+                'params': {'m': 4.297e6 * u.Msun, 'c': 0.0001 * u.kpc}
+            },
+
+            'HernquistBulge': {
+
+            },
+
+            'MiyamotoNagaiDisks': {
+
+            },
+
+            'NFWHalo': {
+
+            }
+
+        }

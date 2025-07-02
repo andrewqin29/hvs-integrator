@@ -80,8 +80,57 @@ class MWPotential:
                 }
             },
 
-            'disk': {
-                'function': miyamoto_nagai_acceleration
+            # for more accurate modeling, we use model both the MW thin and thin disks.
+            # for each disk we use the MN3 method described by Gala by treating each disk as the
+            # sum of three separate miyamoto-nagai disks with distinct parameters. Thus a total of 6 miyamoto-nagai disks
+            # The optimal parameters shown below are from https://arxiv.org/pdf/1502.00627 section 3. 
+
+            'thin_disk_1': {
+                'function': miyamoto_nagai_acceleration,
+                'params': {
+                    'm': 9.01e10,
+                    'a': 4.27
+                }
+            },
+
+            'thin_disk_2': {
+                'function': miyamoto_nagai_acceleration,
+                'params': {
+                    'm': -5.91e10,
+                    'a': 9.23
+                }
+            },
+
+            'thin_disk_3': {
+                'function': miyamoto_nagai_acceleration,
+                'params': {
+                    'm': 1e10,
+                    'a': 1.43
+                }
+            },
+
+            'thick_disk_1': {
+                'function': miyamoto_nagai_acceleration,
+                'params': {
+                    'm': 7.88e9,
+                    'a': 7.30
+                }
+            },
+
+            'thick_disk_2': {
+                'function': miyamoto_nagai_acceleration,
+                'params': {
+                    'm': -4.97e9,
+                    'a': 15.25
+                }
+            },
+
+            'thick_disk_3': {
+                'function': miyamoto_nagai_acceleration,
+                'params': {
+                    'm': 0.82e9,
+                    'a': 2.02
+                }
             },
 
             'halo': {

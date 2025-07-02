@@ -7,6 +7,7 @@ The project uses observational data from the Gaia DR3 dataset, processes it into
 ### Key Scientific References
 - **Primary Reference:** Han et al. (2025), *Hypervelocity Stars Trace a Supermassive Black Hole in the Large Magellanic Cloud* ([arXiv:2502.00102](https://arxiv.org/abs/2502.00102))
 - **LMC Proper Motion Data:** Kallivayalil et al. (2013), *Third-epoch Magellanic Cloud Proper Motions...* ([arXiv:1301.0832](https://arxiv.org/abs/1301.0832))
+- **Miyamoto-Nagai Disk Model:** Smith et al. (2015), *Simple and accurate modelling of the gravitational potential...* ([arXiv:1502.00627](https://arxiv.org/pdf/1502.00627))
 
 ---
 
@@ -50,7 +51,7 @@ Run the following scripts from the command line in order. They will read the raw
 # Script 1: Cleans raw data and queries Gaia for full observational data
 python scripts/get_gaia_data.py
 
-# Script 2: Converts observational data to Cartesian coordinates with errors
+# Script 2: Converts observational data to Cartesian coordinates with with errors and 6x6 covariance matrices.
 python scripts/make_cartesian_data.py
 ```
 Upon completion, the processed data files will be saved in the `data/processed/` directory.

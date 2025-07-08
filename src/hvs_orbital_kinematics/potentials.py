@@ -31,11 +31,12 @@ def miyamoto_nagai_acceleration(pos, params):
 
     Parameters:
         - pos: The 3d position vector of the HVS
-        - params: A dictionary of the parameters. 'm' for mass in Suns, 'l' for scale length (kpc), 'h' for scale height
+        - params: A dictionary of the parameters. 'm' for mass in Suns, 'a' for scale length (kpc), 'h' for scale height
     """
     x, y, z = pos
     mass = params['m']
-    s
+    scale_length = params['a']
+    
 
 def nfw_acceleration(pos, params):
     """
@@ -66,32 +67,34 @@ class MWPotential:
         scale_radius_halo = None
     
         self.components = {
-            # initialize parameters for the components
+            # initialize parameters for the components. see: https://gala.adrian.pw/en/latest/_modules/gala/potential/potential/builtin/special.html
             'nucleus': {
                 'function': hernquist_acceleration,
                 'params': {
-                    'm': 4.297e6, # mass of SGR A* in sun mass
-                    'a': 0.00001 # is this right?? -- trying to treat as point mass
+                    'm': 1.8142e9, #taken from gala
+                    'a': 0.0688867 
                     }
             },
 
             'bulge': {
                 'function': hernquist_acceleration,
                 'params': {
-                    # NEED MASS AND SCALE RADIUS OF BULGE
+                    'm':5e9, #taken from gala
+                    'a':1.0
                 }
             },
 
             # for more accurate modeling, we use model both the MW thin and thin disks.
             # for each disk we use the MN3 method described by Gala by treating each disk as the
             # sum of three separate miyamoto-nagai disks with distinct parameters. Thus a total of 6 miyamoto-nagai disks
-            # The optimal parameters shown below are from https://arxiv.org/pdf/1502.00627 section 3. 
+            # The optimal parameters shown below are from https://arxiv.org/pdf/1502.00627 section 3.2/3.3. 
 
             'thin_disk_1': {
                 'function': miyamoto_nagai_acceleration,
                 'params': {
                     'm': 9.01e10,
-                    'a': 4.27
+                    'a': 4.27,
+                    'b': 0.242
                 }
             },
 
@@ -99,7 +102,9 @@ class MWPotential:
                 'function': miyamoto_nagai_acceleration,
                 'params': {
                     'm': -5.91e10,
-                    'a': 9.23
+                    'a': 9.23,
+                    'b': 0.242
+
                 }
             },
 
@@ -107,7 +112,8 @@ class MWPotential:
                 'function': miyamoto_nagai_acceleration,
                 'params': {
                     'm': 1e10,
-                    'a': 1.43
+                    'a': 1.43,
+                    'b': 0.242
                 }
             },
 
@@ -115,7 +121,8 @@ class MWPotential:
                 'function': miyamoto_nagai_acceleration,
                 'params': {
                     'm': 7.88e9,
-                    'a': 7.30
+                    'a': 7.30,
+                    'b':1.14
                 }
             },
 
@@ -123,7 +130,8 @@ class MWPotential:
                 'function': miyamoto_nagai_acceleration,
                 'params': {
                     'm': -4.97e9,
-                    'a': 15.25
+                    'a': 15.25,
+                    'b':1.14
                 }
             },
 
@@ -131,18 +139,18 @@ class MWPotential:
                 'function': miyamoto_nagai_acceleration,
                 'params': {
                     'm': 0.82e9,
-                    'a': 2.02
+                    'a': 2.02,
+                    'b':1.14
                 }
             },
 
             'halo': {
                 'function': nfw_acceleration,
                 'params': {
-                    'rho0': rho0_halo,
-                    'a': scale_radius_halo
-                    }
+                    'm':5.5427e11,
+                    'r_s': 15.626
+                }
             }
-
         }
     
     def get_acceleration(self, pos):

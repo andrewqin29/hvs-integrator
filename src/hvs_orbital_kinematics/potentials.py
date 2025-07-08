@@ -33,7 +33,9 @@ def miyamoto_nagai_acceleration(pos, params):
         - pos: The 3d position vector of the HVS
         - params: A dictionary of the parameters. 'm' for mass in Suns, 'l' for scale length (kpc), 'h' for scale height
     """
-    pass
+    x, y, z = pos
+    mass = params['m']
+    s
 
 def nfw_acceleration(pos, params):
     """

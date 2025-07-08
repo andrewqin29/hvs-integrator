@@ -34,8 +34,23 @@ def miyamoto_nagai_acceleration(pos, params):
         - params: A dictionary of the parameters. 'm' for mass in Suns, 'a' for scale length (kpc), 'h' for scale height
     """
     x, y, z = pos
-    mass = params['m']
-    scale_length = params['a']
+    m, a, b = params['m'], params['a'], params['b']
+    
+    R_sq = x**2 + y**2
+    sqrt_z_sq_b_sq = np.sqrt(z**2 + b**2)
+
+    denominator = (R_sq + (a + sqrt_z_sq_b_sq)**2)**(1.5)
+    
+    accel_R_mag = -G_KPC_MYR * m * (a + sqrt_z_sq_b_sq) / denominator
+    accel_z = -G_KPC_MYR * m * z * (a + sqrt_z_sq_b_sq) / (denominator * sqrt_z_sq_b_sq)
+
+    R = np.sqrt(R_sq)
+    if R == 0:
+        accel_x, accel_y = 0., 0.
+    else:
+        accel_x = accel_R_mag * (x / R)
+        accel_y = accel_R_mag * (y / R)
+    return np.array([accel_x, accel_y, accel_z])
     
 
 def nfw_acceleration(pos, params):
@@ -50,21 +65,22 @@ def nfw_acceleration(pos, params):
     if r == 0:
         return np.array([0., 0., 0.])
     
-    rho = params['rho0']
-    a = params['a']
-    factored_term = -4 * PI * G_KPC_MYR * rho * (a**3) / (r**3)
-    bracket_term = r / (r + a) - np.log(1 + r / a)
+    m, r_s = params['m'], params['r_s']
+    x_norm = r / r_s
+    
+    mass_term = G_KPC_MYR * m
+    log_term = np.log(1 + x_norm) - (x_norm / (1 + x_norm))
+    denominator = r**2 * log_term
 
-    return factored_term * bracket_term * pos
+    if denominator == 0:
+        return np.array([0., 0., 0.])
+    return -mass_term / denominator * pos
 
 
 
 class MWPotential:
     def __init__(self):
 
-        # define component values
-        rho0_halo = None #FIND THESE VALUES LATER
-        scale_radius_halo = None
     
         self.components = {
             # initialize parameters for the components. see: https://gala.adrian.pw/en/latest/_modules/gala/potential/potential/builtin/special.html

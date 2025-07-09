@@ -245,7 +245,19 @@ class MWPotential:
     # a general get acceleration function which takes into account the LMC using center of mass simulations
     # from Garavito-Camargo: https://iopscience.iop.org/article/10.3847/1538-4357/ab32eb/pdf and Han/El-Badry
     def get_acceleration(self, pos, t):
-        pass
+        total_accel = np.array([0., 0., 0.])
+        
+        mw_pos = self.get_mw_pos_at_time(t)
+        lmc_pos = self.get_lmc_pos_at_time(t)
+        
+        relative_pos_mw = pos - mw_pos
+        for component in self.mw_components.values():
+            total_accel += component['accel_function'](relative_pos_mw, component['params'])
+            
+        relative_pos_lmc = pos - lmc_pos
+        total_accel += self.lmc_component['accel_function'](relative_pos_lmc, self.lmc_component['params'])
+        
+        return total_accel
 
     def get_potential_energy(self, pos):
         # calculates total potential energy at a given point

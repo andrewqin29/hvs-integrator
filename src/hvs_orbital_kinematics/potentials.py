@@ -6,6 +6,12 @@ import astropy.units as u
 G_KPC_MYR = const.G.to(u.kpc**3 / (u.Msun * u.Myr**2)).value
 PI = 3.1415926535
 
+def hernquist_potential(pos, params):
+    r = np.linalg.norm(pos)
+    if r == 0: return 0.0
+    m, c = params['m'], params['c']
+    return -G_KPC_MYR * m / (r + c)
+
 def hernquist_acceleration(pos, params):
     """
     Calculates acceleration due to Hernquist Buldge potential. Used as the acceleration function for both
@@ -22,6 +28,12 @@ def hernquist_acceleration(pos, params):
     mass_term = G_KPC_MYR * m
     denominator = r * (r + a)**2
     return -mass_term / denominator * pos # directed towards galactic center
+
+def miyamoto_nagai_potential(pos, params):
+    x, y, z = pos
+    m, a, b = params['m'], params['a'], params['b']
+    R_sq = x**2 + y**2
+    return -G_KPC_MYR * m / np.sqrt(R_sq + (a + np.sqrt(z**2 + b**2))**2)
 
 def miyamoto_nagai_acceleration(pos, params):
     """
@@ -53,8 +65,14 @@ def miyamoto_nagai_acceleration(pos, params):
 
     return np.array([accel_x, accel_y, accel_z])
     
+def nfw_potential(pos, params):
+    r = np.linalg.norm(pos)
+    if r == 0: return 0.0
+    m, r_s = params['m'], params['r_s']
+    s = r / r_s
+    if s == 0: return 0.0
+    return -G_KPC_MYR * m / r_s * (np.log(1 + s) / s)
 
-# potentials.py (Corrected)
 def nfw_acceleration(pos, params):
     """
     Calculates acceleration due to NFW dark matter halo potential.
@@ -75,14 +93,14 @@ def nfw_acceleration(pos, params):
     accel_mag = (G_KPC_MYR * m * mass_profile_term) / r**2
         
     return -accel_mag * (pos / r)
-    
 
 class MWPotential:
     def __init__(self):
         self.components = {
             # initialize parameters for the components. see: https://gala.adrian.pw/en/latest/_modules/gala/potential/potential/builtin/special.html
             'nucleus': {
-                'function': hernquist_acceleration,
+                'accel_function': hernquist_acceleration,
+                'potential_function': hernquist_potential,
                 'params': {
                     'm': 1.8142e9, #taken from gala
                     'c': 0.0688867 
@@ -90,99 +108,98 @@ class MWPotential:
             },
 
             'bulge': {
-                'function': hernquist_acceleration,
+                'accel_function': hernquist_acceleration,
+                'potential_function': hernquist_potential,
                 'params': {
                     'm':5e9, #taken from gala
                     'c':0.7
                 }
             },
-            
-            # simpler single disk model
-
-            'disk': {
-                'function':miyamoto_nagai_acceleration,
-                'params': {
-                    'm':6.8e10,
-                    'a':3.0,
-                    'b':0.28
-                }
-            },
 
             'halo': {
-                'function': nfw_acceleration,
+                'accel_function': nfw_acceleration,
+                'potential_function': nfw_potential,
                 'params': {
                     'm':5.5427e11,
                     'r_s': 15.626
                 }
-            }
+            },
 
             # for more accurate modeling, we use model both the MW thin and thin disks.
             # for each disk we use the MN3 method described by Gala by treating each disk as the
             # sum of three separate miyamoto-nagai disks with distinct parameters. Thus a total of 6 miyamoto-nagai disks
-            # The optimal parameters shown below are from https://arxiv.org/pdf/1502.00627 section 3.2/3.3. 
+            # The optimal parameters shown below are from https://arxiv.org/pdf/1502.00627 section 3.2/3.3.
 
-            # 'thin_disk_1': {
-            #     'function': miyamoto_nagai_acceleration,
+            # simpler single disk model
+            # 'disk': {
+            #     'accel_function':miyamoto_nagai_acceleration,
             #     'params': {
-            #         'm': 9.01e10,
-            #         'a': 4.27,
-            #         'b': 0.242
+            #         'm':6.8e10,
+            #         'a':3.0,
+            #         'b':0.28
             #     }
             # },
 
-            # 'thin_disk_2': {
-            #     'function': miyamoto_nagai_acceleration,
-            #     'params': {
-            #         'm': -5.91e10,
-            #         'a': 9.23,
-            #         'b': 0.242
+            'thin_disk_1': {
+                'accel_function': miyamoto_nagai_acceleration,
+                'potential_function': miyamoto_nagai_potential,
+                'params': {
+                    'm': 9.01e10,
+                    'a': 4.27,
+                    'b': 0.242
+                }
+            },
 
-            #     }
-            # },
+            'thin_disk_2': {
+                'accel_function': miyamoto_nagai_acceleration,
+                'potential_function': miyamoto_nagai_potential,
+                'params': {
+                    'm': -5.91e10,
+                    'a': 9.23,
+                    'b': 0.242
 
-            # 'thin_disk_3': {
-            #     'function': miyamoto_nagai_acceleration,
-            #     'params': {
-            #         'm': 1e10,
-            #         'a': 1.43,
-            #         'b': 0.242
-            #     }
-            # },
+                }
+            },
 
-            # 'thick_disk_1': {
-            #     'function': miyamoto_nagai_acceleration,
-            #     'params': {
-            #         'm': 7.88e9,
-            #         'a': 7.30,
-            #         'b':1.14
-            #     }
-            # },
+            'thin_disk_3': {
+                'accel_function': miyamoto_nagai_acceleration,
+                'potential_function': miyamoto_nagai_potential,
+                'params': {
+                    'm': 1e10,
+                    'a': 1.43,
+                    'b': 0.242
+                }
+            },
 
-            # 'thick_disk_2': {
-            #     'function': miyamoto_nagai_acceleration,
-            #     'params': {
-            #         'm': -4.97e9,
-            #         'a': 15.25,
-            #         'b':1.14
-            #     }
-            # },
+            'thick_disk_1': {
+                'accel_function': miyamoto_nagai_acceleration,
+                'potential_function': miyamoto_nagai_potential,
+                'params': {
+                    'm': 7.88e9,
+                    'a': 7.30,
+                    'b':1.14
+                }
+            },
 
-            # 'thick_disk_3': {
-            #     'function': miyamoto_nagai_acceleration,
-            #     'params': {
-            #         'm': 0.82e9,
-            #         'a': 2.02,
-            #         'b':1.14
-            #     }
-            # },
+            'thick_disk_2': {
+                'accel_function': miyamoto_nagai_acceleration,
+                'potential_function': miyamoto_nagai_potential,
+                'params': {
+                    'm': -4.97e9,
+                    'a': 15.25,
+                    'b':1.14
+                }
+            },
 
-            # 'halo': {
-            #     'function': nfw_acceleration,
-            #     'params': {
-            #         'm':5.5427e11,
-            #         'r_s': 15.626
-            #     }
-            # }
+            'thick_disk_3': {
+                'accel_function': miyamoto_nagai_acceleration,
+                'potential_function': miyamoto_nagai_potential,
+                'params': {
+                    'm': 0.82e9,
+                    'a': 2.02,
+                    'b':1.14
+                }
+            }
         }
     
     def get_acceleration(self, pos):
@@ -196,6 +213,19 @@ class MWPotential:
         ret = np.array([0., 0., 0.])
 
         for component in self.components.values():
-            ret += component['function'](pos, component['params'])
+            ret += component['accel_function'](pos, component['params'])
         
         return ret
+    
+    def get_potential_energy(self, pos):
+        # calculates total potential energy at a given point
+        ret = 0.
+        for component in self.components.values():
+            ret += component['potential_function'](pos, component['params'])
+        return ret
+    
+    def get_total_energy(self, pos, vel):
+        # calculates total energy as: E = U + KE
+        kinetic_energy = 0.5 * np.linalg.norm(vel)**2
+        potential_energy = self.get_potential_energy(pos)
+        return kinetic_energy + potential_energy

@@ -211,9 +211,10 @@ class MWPotential:
             }
         }
 
-        # COMMENTED FOR NOW UNCOMMENT LATER
-        # self.mw_orbit = mw_orbit_df.set_index('time') #change according to dataframe once received. assuming in form t, x, y, z
-        # self.lmc_orbit = lmc_orbit_df.set_index('time')
+        self.mw_orbit = mw_orbit_df
+        self.lmc_orbit = lmc_orbit_df
+        if self.mw_orbit is not None: self.mw_orbit.set_index('time', inplace=True)
+        if self.lmc_orbit is not None: self.lmc_orbit.set_index('time', inplace=True)
 
     def get_pos_at_time(self, orbit_df, t):
         closest_time = orbit_df.index.to_series().iloc[(orbit_df.index - t).abs().argsort()[:1]].iloc[0]

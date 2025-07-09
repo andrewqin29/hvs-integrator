@@ -18,7 +18,7 @@ def hernquist_acceleration(pos, params):
     r = np.linalg.norm(pos) # radius from center
     if r == 0:
         return np.array([0., 0., 0.]) # early check preventing divide by 0
-    m, a = params['m'], params['a']
+    m, a = params['m'], params['c']
     mass_term = G_KPC_MYR * m
     denominator = r * (r + a)**2
     return -mass_term / denominator * pos # directed towards galactic center
@@ -36,40 +36,45 @@ def miyamoto_nagai_acceleration(pos, params):
     
     R_sq = x**2 + y**2
     sqrt_z_sq_b_sq = np.sqrt(z**2 + b**2)
+    
     denominator = (R_sq + (a + sqrt_z_sq_b_sq)**2)**(1.5)
-    accel_R_mag = -G_KPC_MYR * m * (a + sqrt_z_sq_b_sq) / denominator
-    accel_z = -G_KPC_MYR * m * z * (a + sqrt_z_sq_b_sq) / (denominator * sqrt_z_sq_b_sq)
-
-    R = np.sqrt(R_sq)
-    if R == 0:
-        accel_x, accel_y = 0., 0.
+    
+    common_factor_xy = -G_KPC_MYR * m / denominator
+    accel_x = common_factor_xy * x
+    accel_y = common_factor_xy * y
+    
+    accel_z_numerator = -G_KPC_MYR * m * z * (a + sqrt_z_sq_b_sq)
+    accel_z_denominator = denominator * sqrt_z_sq_b_sq
+    
+    if accel_z_denominator == 0:
+        accel_z = 0.
     else:
-        accel_x = accel_R_mag * (x / R)
-        accel_y = accel_R_mag * (y / R)
+        accel_z = accel_z_numerator / accel_z_denominator
+
     return np.array([accel_x, accel_y, accel_z])
     
 
+# potentials.py (Corrected)
 def nfw_acceleration(pos, params):
     """
     Calculates acceleration due to NFW dark matter halo potential.
-
-    Parameters:
-        - pos: The 3d position vector of the HVS
-        - params: A dictionary of the parameters. 'rho' for scale density, 'a' for scale radius (kpc)
     """
     r = np.linalg.norm(pos)
     if r == 0:
         return np.array([0., 0., 0.])
     
     m, r_s = params['m'], params['r_s']
-    x_norm = r / r_s
-    mass_term = G_KPC_MYR * m
-    log_term = np.log(1 + x_norm) - (x_norm / (1 + x_norm))
-    denominator = r**2 * log_term
-
-    if denominator == 0:
+    s = r / r_s
+    
+    mass_profile_term = np.log(1 + s) - s / (1 + s)
+    
+    if r**2 == 0:
         return np.array([0., 0., 0.])
-    return -mass_term / denominator * pos
+        
+    # acceleration = G * M(<r) / r^2, where M(<r) is proportional to mass_profile_term
+    accel_mag = (G_KPC_MYR * m * mass_profile_term) / r**2
+        
+    return -accel_mag * (pos / r)
     
 
 class MWPotential:
@@ -80,7 +85,7 @@ class MWPotential:
                 'function': hernquist_acceleration,
                 'params': {
                     'm': 1.8142e9, #taken from gala
-                    'a': 0.0688867 
+                    'c': 0.0688867 
                     }
             },
 
@@ -88,16 +93,18 @@ class MWPotential:
                 'function': hernquist_acceleration,
                 'params': {
                     'm':5e9, #taken from gala
-                    'a':1.0
+                    'c':0.7
                 }
             },
+            
+            # simpler single disk model
 
             'disk': {
                 'function':miyamoto_nagai_acceleration,
                 'params': {
-                    'm':4.7717e10,
-                    'a':2.6,
-                    'b':0.3
+                    'm':6.8e10,
+                    'a':3.0,
+                    'b':0.28
                 }
             },
 

@@ -1,5 +1,3 @@
-import numpy as np
-
 def leapfrog_step(pos, vel, dt, acceleration_func):
     """
     Performs a single step of the Leapfrog integration procedure given initial position and acceleration functions.
@@ -19,6 +17,6 @@ def leapfrog_step(pos, vel, dt, acceleration_func):
     # calculate acceleration at pos_new
     accel_new = acceleration_func(pos_new)
     # obtain final velocity by adding new acceleration * dt/2 to velocity at half step
-    vel_new = vel_half * accel_new * (dt / 2.0)
+    vel_new = vel_half + accel_new * (dt / 2.0)
 
     return pos_new, vel_new

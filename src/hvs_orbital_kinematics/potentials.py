@@ -18,11 +18,9 @@ def hernquist_acceleration(pos, params):
     r = np.linalg.norm(pos) # radius from center
     if r == 0:
         return np.array([0., 0., 0.]) # early check preventing divide by 0
-    
     m, a = params['m'], params['a']
     mass_term = G_KPC_MYR * m
     denominator = r * (r + a)**2
-
     return -mass_term / denominator * pos # directed towards galactic center
 
 def miyamoto_nagai_acceleration(pos, params):
@@ -38,9 +36,7 @@ def miyamoto_nagai_acceleration(pos, params):
     
     R_sq = x**2 + y**2
     sqrt_z_sq_b_sq = np.sqrt(z**2 + b**2)
-
     denominator = (R_sq + (a + sqrt_z_sq_b_sq)**2)**(1.5)
-    
     accel_R_mag = -G_KPC_MYR * m * (a + sqrt_z_sq_b_sq) / denominator
     accel_z = -G_KPC_MYR * m * z * (a + sqrt_z_sq_b_sq) / (denominator * sqrt_z_sq_b_sq)
 
@@ -67,7 +63,6 @@ def nfw_acceleration(pos, params):
     
     m, r_s = params['m'], params['r_s']
     x_norm = r / r_s
-    
     mass_term = G_KPC_MYR * m
     log_term = np.log(1 + x_norm) - (x_norm / (1 + x_norm))
     denominator = r**2 * log_term
@@ -75,13 +70,10 @@ def nfw_acceleration(pos, params):
     if denominator == 0:
         return np.array([0., 0., 0.])
     return -mass_term / denominator * pos
-
-
+    
 
 class MWPotential:
     def __init__(self):
-
-    
         self.components = {
             # initialize parameters for the components. see: https://gala.adrian.pw/en/latest/_modules/gala/potential/potential/builtin/special.html
             'nucleus': {
@@ -100,63 +92,12 @@ class MWPotential:
                 }
             },
 
-            # for more accurate modeling, we use model both the MW thin and thin disks.
-            # for each disk we use the MN3 method described by Gala by treating each disk as the
-            # sum of three separate miyamoto-nagai disks with distinct parameters. Thus a total of 6 miyamoto-nagai disks
-            # The optimal parameters shown below are from https://arxiv.org/pdf/1502.00627 section 3.2/3.3. 
-
-            'thin_disk_1': {
-                'function': miyamoto_nagai_acceleration,
+            'disk': {
+                'function':miyamoto_nagai_acceleration,
                 'params': {
-                    'm': 9.01e10,
-                    'a': 4.27,
-                    'b': 0.242
-                }
-            },
-
-            'thin_disk_2': {
-                'function': miyamoto_nagai_acceleration,
-                'params': {
-                    'm': -5.91e10,
-                    'a': 9.23,
-                    'b': 0.242
-
-                }
-            },
-
-            'thin_disk_3': {
-                'function': miyamoto_nagai_acceleration,
-                'params': {
-                    'm': 1e10,
-                    'a': 1.43,
-                    'b': 0.242
-                }
-            },
-
-            'thick_disk_1': {
-                'function': miyamoto_nagai_acceleration,
-                'params': {
-                    'm': 7.88e9,
-                    'a': 7.30,
-                    'b':1.14
-                }
-            },
-
-            'thick_disk_2': {
-                'function': miyamoto_nagai_acceleration,
-                'params': {
-                    'm': -4.97e9,
-                    'a': 15.25,
-                    'b':1.14
-                }
-            },
-
-            'thick_disk_3': {
-                'function': miyamoto_nagai_acceleration,
-                'params': {
-                    'm': 0.82e9,
-                    'a': 2.02,
-                    'b':1.14
+                    'm':4.7717e10,
+                    'a':2.6,
+                    'b':0.3
                 }
             },
 
@@ -167,6 +108,74 @@ class MWPotential:
                     'r_s': 15.626
                 }
             }
+
+            # for more accurate modeling, we use model both the MW thin and thin disks.
+            # for each disk we use the MN3 method described by Gala by treating each disk as the
+            # sum of three separate miyamoto-nagai disks with distinct parameters. Thus a total of 6 miyamoto-nagai disks
+            # The optimal parameters shown below are from https://arxiv.org/pdf/1502.00627 section 3.2/3.3. 
+
+            # 'thin_disk_1': {
+            #     'function': miyamoto_nagai_acceleration,
+            #     'params': {
+            #         'm': 9.01e10,
+            #         'a': 4.27,
+            #         'b': 0.242
+            #     }
+            # },
+
+            # 'thin_disk_2': {
+            #     'function': miyamoto_nagai_acceleration,
+            #     'params': {
+            #         'm': -5.91e10,
+            #         'a': 9.23,
+            #         'b': 0.242
+
+            #     }
+            # },
+
+            # 'thin_disk_3': {
+            #     'function': miyamoto_nagai_acceleration,
+            #     'params': {
+            #         'm': 1e10,
+            #         'a': 1.43,
+            #         'b': 0.242
+            #     }
+            # },
+
+            # 'thick_disk_1': {
+            #     'function': miyamoto_nagai_acceleration,
+            #     'params': {
+            #         'm': 7.88e9,
+            #         'a': 7.30,
+            #         'b':1.14
+            #     }
+            # },
+
+            # 'thick_disk_2': {
+            #     'function': miyamoto_nagai_acceleration,
+            #     'params': {
+            #         'm': -4.97e9,
+            #         'a': 15.25,
+            #         'b':1.14
+            #     }
+            # },
+
+            # 'thick_disk_3': {
+            #     'function': miyamoto_nagai_acceleration,
+            #     'params': {
+            #         'm': 0.82e9,
+            #         'a': 2.02,
+            #         'b':1.14
+            #     }
+            # },
+
+            # 'halo': {
+            #     'function': nfw_acceleration,
+            #     'params': {
+            #         'm':5.5427e11,
+            #         'r_s': 15.626
+            #     }
+            # }
         }
     
     def get_acceleration(self, pos):

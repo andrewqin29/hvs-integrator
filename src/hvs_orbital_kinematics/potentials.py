@@ -1,6 +1,7 @@
 import numpy as np
 from astropy import constants as const
 import astropy.units as u
+import pandas as pd
 
 # express gravitational constant in terms of standard units (kpc, m_Sun, Myr)
 G_KPC_MYR = const.G.to(u.kpc**3 / (u.Msun * u.Myr**2)).value
@@ -95,8 +96,8 @@ def nfw_acceleration(pos, params):
     return -accel_mag * (pos / r)
 
 class MWPotential:
-    def __init__(self):
-        self.components = {
+    def __init__(self, mw_orbit_df=None, lmc_orbit_df=None):
+        self.mw_components = {
             # initialize parameters for the components. see: https://gala.adrian.pw/en/latest/_modules/gala/potential/potential/builtin/special.html
             'nucleus': {
                 'accel_function': hernquist_acceleration,
@@ -201,8 +202,32 @@ class MWPotential:
                 }
             }
         }
+        # model the LMC as just a singular Hernquist potential for simplicity
+        self.lmc_component = { 
+            'acccel_function': hernquist_acceleration,
+            'params': {
+                'm':1.5e11,
+                'c':15.0
+            }
+        }
+
+        # COMMENTED FOR NOW UNCOMMENT LATER
+        # self.mw_orbit = mw_orbit_df.set_index('time') #change according to dataframe once received. assuming in form t, x, y, z
+        # self.lmc_orbit = lmc_orbit_df.set_index('time')
+
+    def get_pos_at_time(self, orbit_df, t):
+        closest_time = orbit_df.index.to_series().iloc[(orbit_df.index - t).abs().argsort()[:1]].iloc[0]
+        pos = orbit_df.loc[closest_time, ['x', 'y', 'z']].values # change according to dataframe once received
+        return pos
     
-    def get_acceleration(self, pos):
+    def get_mw_pos_at_time(self, t):
+        return self.get_pos_at_time(self.mw_orbit, t)
+        
+    def get_lmc_pos_at_time(self, t):
+        return self.get_pos_at_time(self.lmc_orbit, t)
+    
+    # get acceleration function for only the MW (ignoring LMC's effect, only for validating against Gala)
+    def get_acceleration_mw_only(self, pos):
         '''
         Calculates the total gravitational acceleration at a given position by summing contributions
         from galactic components. Returns a 3D acceleration vector in kpc/Myr^2
@@ -212,15 +237,20 @@ class MWPotential:
         '''
         ret = np.array([0., 0., 0.])
 
-        for component in self.components.values():
+        for component in self.mw_components.values():
             ret += component['accel_function'](pos, component['params'])
         
         return ret
-    
+
+    # a general get acceleration function which takes into account the LMC using center of mass simulations
+    # from Garavito-Camargo: https://iopscience.iop.org/article/10.3847/1538-4357/ab32eb/pdf and Han/El-Badry
+    def get_acceleration(self, pos, t):
+        pass
+
     def get_potential_energy(self, pos):
         # calculates total potential energy at a given point
         ret = 0.
-        for component in self.components.values():
+        for component in self.mw_components.values():
             ret += component['potential_function'](pos, component['params'])
         return ret
     

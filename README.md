@@ -8,6 +8,7 @@ The project uses observational data from the Gaia DR3 dataset, processes it into
 - **Primary Reference:** Han et al. (2025), *Hypervelocity Stars Trace a Supermassive Black Hole in the Large Magellanic Cloud* ([arXiv:2502.00102](https://arxiv.org/abs/2502.00102))
 - **LMC Proper Motion Data:** Kallivayalil et al. (2013), *Third-epoch Magellanic Cloud Proper Motions...* ([arXiv:1301.0832](https://arxiv.org/abs/1301.0832))
 - **Miyamoto-Nagai Disk Model:** Smith et al. (2015), *Simple and accurate modelling of the gravitational potential...* ([arXiv:1502.00627](https://arxiv.org/pdf/1502.00627))
+- **LMC/MW Trajectory Data:** Courtesy of Dr. Nicolas Garavito-Camargo. Garavito-Camargo et al. (2019), *Hunting for the Dark Matter Wake Induced by...* ([arXiv:1902.05089](https://arxiv.org/pdf/1902.05089))
 
 ---
 

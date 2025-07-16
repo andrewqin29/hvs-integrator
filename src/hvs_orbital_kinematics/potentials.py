@@ -95,7 +95,20 @@ def nfw_acceleration(pos, params):
         
     return -accel_mag * (pos / r)
 
-class MWPotential:
+def plummer_potential(pos, params):
+    r_sq = np.sum(pos**2)
+    m, b = params['m'], params['b']
+    return -G_KPC_MYR * m / np.sqrt(r_sq + b**2)
+
+def plummer_acceleration(pos, params):
+    """Acceleration for a Plummer sphere."""
+    r_sq = np.sum(pos**2)
+    m, b = params['m'], params['b']
+    denominator = (r_sq + b**2)**1.5
+    if denominator == 0: return np.array([0., 0., 0.])
+    return -G_KPC_MYR * m * pos / denominator
+
+class MWPotential: #now includes LMC mass and trajectory influence
     def __init__(self, mw_orbit_df=None, lmc_orbit_df=None):
         self.mw_components = {
             # initialize parameters for the components. see: https://gala.adrian.pw/en/latest/_modules/gala/potential/potential/builtin/special.html
@@ -202,12 +215,13 @@ class MWPotential:
                 }
             }
         }
-        # model the LMC as just a singular Hernquist potential for simplicity
+        # model the LMC as plummer sphere
         self.lmc_component = { 
-            'acccel_function': hernquist_acceleration,
+            'acccel_function': plummer_acceleration,
+            'potential_function': plummer_potential,
             'params': {
                 'm':1.5e11,
-                'c':15.0
+                'b':15.0 #plummer scale radius
             }
         }
 
@@ -218,8 +232,7 @@ class MWPotential:
 
     def get_pos_at_time(self, orbit_df, t):
         closest_time = orbit_df.index.to_series().iloc[(orbit_df.index - t).abs().argsort()[:1]].iloc[0]
-        pos = orbit_df.loc[closest_time, ['x', 'y', 'z']].values # change according to dataframe once received
-        return pos
+        return orbit_df.loc[closest_time, ['x', 'y', 'z']].values
     
     def get_mw_pos_at_time(self, t):
         return self.get_pos_at_time(self.mw_orbit, t)
@@ -260,15 +273,32 @@ class MWPotential:
         
         return total_accel
 
-    def get_potential_energy(self, pos):
-        # calculates total potential energy at a given point
-        ret = 0.
-        for component in self.mw_components.values():
-            ret += component['potential_function'](pos, component['params'])
-        return ret
+    def get_potential_energy(self, pos, t=None):
+        """
+        Calculates total potential energy factoring in time-varying potential
+        of MW and LMC.
+        """
+        total_potential = 0.
+        
+        if t is not None and self.mw_orbit is not None and self.lmc_orbit is not None:
+            # mw/lmc time varying position
+            mw_pos = self.get_mw_pos_at_time(t)
+            lmc_pos = self.get_lmc_pos_at_time(t)
+
+            relative_pos_mw = pos - mw_pos
+            for component in self.mw_components.values():
+                total_potential += component['potential_function'](relative_pos_mw, component['params'])
+            
+            relative_pos_lmc = pos - lmc_pos
+            total_potential += self.lmc_component['potential_function'](relative_pos_lmc, self.lmc_component['params'])
+        else:
+            # static MW-only potential
+            for component in self.mw_components.values():
+                total_potential += component['potential_function'](pos, component['params'])
+                
+        return total_potential
     
-    def get_total_energy(self, pos, vel):
-        # calculates total energy as: E = U + KE
+    def get_total_energy(self, pos, vel, t=None):
         kinetic_energy = 0.5 * np.linalg.norm(vel)**2
-        potential_energy = self.get_potential_energy(pos)
+        potential_energy = self.get_potential_energy(pos, t)
         return kinetic_energy + potential_energy

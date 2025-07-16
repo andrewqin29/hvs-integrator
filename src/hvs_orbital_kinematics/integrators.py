@@ -20,3 +20,14 @@ def leapfrog_step(pos, vel, dt, acceleration_func):
     vel_new = vel_half + accel_new * (dt / 2.0)
 
     return pos_new, vel_new
+
+def leapfrog_step_time_varying(pos, vel, t, dt, potential):
+    """
+    Performs a single leapfrog step for a time-dependent potential.
+    """
+    accel = potential.get_acceleration(pos, t)
+    vel_half = vel + accel * (dt / 2.0)
+    pos_new = pos + vel_half * dt
+    accel_new = potential.get_acceleration(pos_new, t + dt)
+    vel_new = vel_half + accel_new * (dt / 2.0)
+    return pos_new, vel_new

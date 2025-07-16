@@ -63,13 +63,11 @@ Once the data is generated, you can explore it using the Jupyter Notebooks in th
 
 * **`notebooks/data_generation.ipynb`**: Contains the original exploratory code and development scratchpad for the data processing pipelines.
 * **`notebooks/data_visualization.ipynb`**: Loads the final Cartesian data to produce all diagnostic plots (Aitoff projections, 3D quiver plots, histograms, etc.).
-* **`notebooks/orbit_integration.ipynb`**: The development notebook for building and validating the custom Leapfrog orbit integrator.
+* **`notebooks/orbit_integration_mw_and_lmc.ipynb`**: The development notebook for building and validating the custom Leapfrog orbit integrator.
 
 ---
 
 ## Repository Structure
-
-The repository is organized to separate data, source code, scripts, and notebooks.
 
 ```
 hvs-integrator/

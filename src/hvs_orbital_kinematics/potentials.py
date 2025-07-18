@@ -3,6 +3,8 @@ from astropy import constants as const
 import astropy.units as u
 import pandas as pd
 
+from .interpolators import TrajectoryInterpolator
+
 # express gravitational constant in terms of standard units (kpc, m_Sun, Myr)
 G_KPC_MYR = const.G.to(u.kpc**3 / (u.Msun * u.Myr**2)).value
 PI = 3.1415926535
@@ -109,7 +111,8 @@ def plummer_acceleration(pos, params):
     return -G_KPC_MYR * m * pos / denominator
 
 class MWPotential: #now includes LMC mass and trajectory influence
-    def __init__(self, mw_orbit_df=None, lmc_orbit_df=None):
+    def __init__(self, mw_orbit_path=None, lmc_orbit_path=None):
+        # model the MW as a Hernquist, 3-sum MN disks, and NFW halo
         self.mw_components = {
             # initialize parameters for the components. see: https://gala.adrian.pw/en/latest/_modules/gala/potential/potential/builtin/special.html
             'nucleus': {
@@ -217,28 +220,20 @@ class MWPotential: #now includes LMC mass and trajectory influence
         }
         # model the LMC as plummer sphere
         self.lmc_component = { 
-            'acccel_function': plummer_acceleration,
+            'accel_function': plummer_acceleration,
             'potential_function': plummer_potential,
             'params': {
                 'm':1.5e11,
                 'b':15.0 #plummer scale radius
             }
         }
-
-        self.mw_orbit = mw_orbit_df
-        self.lmc_orbit = lmc_orbit_df
-        if self.mw_orbit is not None: self.mw_orbit.set_index('time', inplace=True)
-        if self.lmc_orbit is not None: self.lmc_orbit.set_index('time', inplace=True)
-
-    def get_pos_at_time(self, orbit_df, t):
-        closest_time = orbit_df.index.to_series().iloc[(orbit_df.index - t).abs().argsort()[:1]].iloc[0]
-        return orbit_df.loc[closest_time, ['x', 'y', 'z']].values
-    
-    def get_mw_pos_at_time(self, t):
-        return self.get_pos_at_time(self.mw_orbit, t)
-        
-    def get_lmc_pos_at_time(self, t):
-        return self.get_pos_at_time(self.lmc_orbit, t)
+        #define interpolators
+        self.mw_interpolator = None
+        self.lmc_interpolator = None
+        if mw_orbit_path:
+            self.mw_interpolator = TrajectoryInterpolator(mw_orbit_path)
+        if lmc_orbit_path:
+            self.lmc_interpolator = TrajectoryInterpolator(lmc_orbit_path)
     
     # get acceleration function for only the MW (ignoring LMC's effect, only for validating against Gala)
     def get_acceleration_mw_only(self, pos):
@@ -261,8 +256,8 @@ class MWPotential: #now includes LMC mass and trajectory influence
     def get_acceleration(self, pos, t):
         total_accel = np.array([0., 0., 0.])
         
-        mw_pos = self.get_mw_pos_at_time(t)
-        lmc_pos = self.get_lmc_pos_at_time(t)
+        mw_pos = self.mw_interpolator.get_position(t)
+        lmc_pos = self.lmc_interpolator.get_position(t)
         
         relative_pos_mw = pos - mw_pos
         for component in self.mw_components.values():
@@ -280,10 +275,10 @@ class MWPotential: #now includes LMC mass and trajectory influence
         """
         total_potential = 0.
         
-        if t is not None and self.mw_orbit is not None and self.lmc_orbit is not None:
+        if t is not None and self.mw_interpolator and self.lmc_interpolator:
             # mw/lmc time varying position
-            mw_pos = self.get_mw_pos_at_time(t)
-            lmc_pos = self.get_lmc_pos_at_time(t)
+            mw_pos = self.mw_interpolator.get_position(t)
+            lmc_pos = self.lmc_interpolator.get_position(t)
 
             relative_pos_mw = pos - mw_pos
             for component in self.mw_components.values():

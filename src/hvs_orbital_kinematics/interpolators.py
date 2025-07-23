@@ -1,12 +1,13 @@
 import pandas as pd
 import numpy as np
 from scipy.optimize import curve_fit
+import astropy.units as u
 import os
 
 class TrajectoryInterpolator:
     def __init__(self, file_path: str, poly_degree: int = 4):
         # handle unit conversions between Garavito-Camargo data and cartesian_df data
-        self.KM_S_TO_KPC_MYR = (u.km / u.s).to(u.kpc / u.Myr).value
+        self.KM_S_TO_KPC_MYR = (u.km / u.s).to(u.kpc / u.Myr)
         self.GYR_TO_MYR = 1000.0
 
         self.file_path = file_path

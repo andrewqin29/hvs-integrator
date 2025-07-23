@@ -235,6 +235,7 @@ class MWPotential: #now includes LMC mass and trajectory influence
         if lmc_orbit_path:
             self.lmc_interpolator = TrajectoryInterpolator(lmc_orbit_path)
     
+    # DEPRECATED (OLD VERSION)
     # get acceleration function for only the MW (ignoring LMC's effect, only for validating against Gala)
     def get_acceleration_mw_only(self, pos):
         '''

@@ -7,7 +7,6 @@ from .interpolators import TrajectoryInterpolator
 
 # express gravitational constant in terms of standard units (kpc, m_Sun, Myr)
 G_KPC_MYR = const.G.to(u.kpc**3 / (u.Msun * u.Myr**2)).value
-PI = 3.1415926535
 
 def hernquist_potential(pos, params):
     r = np.linalg.norm(pos)
@@ -22,14 +21,14 @@ def hernquist_acceleration(pos, params):
 
     Parameters:
         - pos: The 3d position vector of the HVS
-        - params: A dictionary of the parameters. 'm' for mass in Suns, 'a' for scale radius (kpc)
+        - params: A dictionary of the parameters. 'm' for mass in Suns, 'c' for scale radius (kpc)
     """
     r = np.linalg.norm(pos) # radius from center
     if r == 0:
         return np.array([0., 0., 0.]) # early check preventing divide by 0
-    m, a = params['m'], params['c']
+    m, c = params['m'], params['c']
     mass_term = G_KPC_MYR * m
-    denominator = r * (r + a)**2
+    denominator = r * (r + c)**2
     return -mass_term / denominator * pos # directed towards galactic center
 
 def miyamoto_nagai_potential(pos, params):
@@ -44,7 +43,7 @@ def miyamoto_nagai_acceleration(pos, params):
 
     Parameters:
         - pos: The 3d position vector of the HVS
-        - params: A dictionary of the parameters. 'm' for mass in Suns, 'a' for scale length (kpc), 'h' for scale height
+        - params: A dictionary of the parameters. 'm' for mass in Suns, 'a' for scale length (kpc), 'b' for scale height
     """
     x, y, z = pos
     m, a, b = params['m'], params['a'], params['b']
@@ -88,9 +87,6 @@ def nfw_acceleration(pos, params):
     s = r / r_s
     
     mass_profile_term = np.log(1 + s) - s / (1 + s)
-    
-    if r**2 == 0:
-        return np.array([0., 0., 0.])
         
     # acceleration = G * M(<r) / r^2, where M(<r) is proportional to mass_profile_term
     accel_mag = (G_KPC_MYR * m * mass_profile_term) / r**2

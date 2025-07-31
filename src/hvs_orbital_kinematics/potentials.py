@@ -292,16 +292,16 @@ class MWPotential: #now includes LMC mass and trajectory influence
     # LMC: PLUMMER SPHERE
 
     def set_mw_bulge(self, m, c):
-        self.mw_components['params']['m'] = m
-        self.mw_components['params']['c'] = c
+        self.mw_components['bulge']['params']['m'] = m
+        self.mw_components['bulge']['params']['c'] = c
 
     def set_mw_nucleus(self, m, c):
-        self.mw_components['params']['m'] = m
-        self.mw_components['params']['c'] = c
+        self.mw_components['nucleus']['params']['m'] = m
+        self.mw_components['nucleus']['params']['c'] = c
 
     def set_mw_nfw_halo(self, m, r_s):
-        self.mw_components['params']['m'] = m
-        self.mw_components['params']['r_s'] = r_s
+        self.mw_components['halo']['params']['m'] = m
+        self.mw_components['halo']['params']['r_s'] = r_s
 
     def set_lmc_plummer(self, m, b):
         self.lmc_component['params']['m'] = m

@@ -1,12 +1,8 @@
+# DEPRECATED: Use leapfrog_step_time_varying for dynamic MW+LMC potential. 
+# here for backwards compatibility with orbit_integration_mw_only.ipynb notebook which uses the static MW model.
 def leapfrog_step(pos, vel, dt, acceleration_func):
     """
-    Performs a single step of the Leapfrog integration procedure given initial position and acceleration functions.
-    
-    Parameters:
-        - pos: The 3d position vector [x, y, z]
-        - vel: The 3d velocity vector [u, v, w]
-        - dt: Timestep in myr (negative for backwards)
-        - acceleration_func (function): A function that takes a position vector and returns acceleration vector
+    Performs a single step of the Leapfrog integration procedure given initial position and acceleration functions for static MW only version.
     """
     # calculate acceleration at current position
     accel = acceleration_func(pos)

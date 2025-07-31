@@ -143,16 +143,6 @@ class MWPotential: #now includes LMC mass and trajectory influence
             # sum of three separate miyamoto-nagai disks with distinct parameters. Thus a total of 6 miyamoto-nagai disks
             # The optimal parameters shown below are from https://arxiv.org/pdf/1502.00627 section 3.2/3.3.
 
-            # simpler single disk model
-            # 'disk': {
-            #     'accel_function':miyamoto_nagai_acceleration,
-            #     'params': {
-            #         'm':6.8e10,
-            #         'a':3.0,
-            #         'b':0.28
-            #     }
-            # },
-
             'thin_disk_1': {
                 'accel_function': miyamoto_nagai_acceleration,
                 'potential_function': miyamoto_nagai_potential,
@@ -294,3 +284,26 @@ class MWPotential: #now includes LMC mass and trajectory influence
         kinetic_energy = 0.5 * np.linalg.norm(vel)**2
         potential_energy = self.get_potential_energy(pos, t)
         return kinetic_energy + potential_energy
+    
+
+    # SETTER FUNCTIONS FOR ADJUSTABLE PARAMETERS
+    # MW: NUCLEUS, BULGE AND NFW HALO. Disks are not adjustable because they are based off 3-sum MN model 
+    # outlined in Smith paper which are already optimal and because 6 disks is complicated to manually adjust
+    # LMC: PLUMMER SPHERE
+
+    def set_mw_bulge(self, m, c):
+        self.mw_components['params']['m'] = m
+        self.mw_components['params']['c'] = c
+
+    def set_mw_nucleus(self, m, c):
+        self.mw_components['params']['m'] = m
+        self.mw_components['params']['c'] = c
+
+    def set_mw_nfw_halo(self, m, r_s):
+        self.mw_components['params']['m'] = m
+        self.mw_components['params']['r_s'] = r_s
+
+    def set_lmc_plummer(self, m, b):
+        self.lmc_component['params']['m'] = m
+        self.lmc_component['params']['b'] = b
+

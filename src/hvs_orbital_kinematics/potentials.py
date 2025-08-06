@@ -210,7 +210,7 @@ class MWPotential: #now includes LMC mass and trajectory influence
             'potential_function': hernquist_potential,
             'params': {
                 'm':1.47e11,
-                'b':17.11 #plummer scale radius
+                'b':17.11 # scale radius
             }
         }
         #define interpolators
@@ -303,7 +303,7 @@ class MWPotential: #now includes LMC mass and trajectory influence
         self.mw_components['halo']['params']['m'] = m
         self.mw_components['halo']['params']['r_s'] = r_s
 
-    def set_lmc_plummer(self, m, b):
+    def set_lmc_hernquist(self, m, b):
         self.lmc_component['params']['m'] = m
         self.lmc_component['params']['b'] = b
 

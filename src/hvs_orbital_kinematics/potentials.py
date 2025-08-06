@@ -206,11 +206,11 @@ class MWPotential: #now includes LMC mass and trajectory influence
         }
         # model the LMC as plummer sphere
         self.lmc_component = { 
-            'accel_function': plummer_acceleration,
-            'potential_function': plummer_potential,
+            'accel_function': hernquist_acceleration,
+            'potential_function': hernquist_potential,
             'params': {
-                'm':1.5e11,
-                'b':15.0 #plummer scale radius
+                'm':1.47e11,
+                'b':17.11 #plummer scale radius
             }
         }
         #define interpolators

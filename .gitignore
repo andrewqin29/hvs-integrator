@@ -27,6 +27,8 @@ MANIFEST
 
 # Environments
 hvs_env/
+venv/
 
 # Data folders
 data/processed/corner_plots
+data/processed/origin_analysis
